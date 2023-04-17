@@ -1,9 +1,10 @@
 import SwiftUI
+import AVFoundation
 
 let rows = 25
 let cols = 25
 
-
+var player: AVAudioPlayer!
 
 struct ContentView: View {
     
@@ -112,6 +113,21 @@ struct ContentView: View {
                 
                 Spacer()
             }
+        }
+    }
+    
+    func playSound() {
+        let url = Bundle.main.url(forResource: "ticker", withExtension: "wav")
+        
+        guard url != nil else {
+            return
+        }
+        
+        do {
+            player = try AVAudioPlayer(contentsOf: url!)
+            player.play()
+        } catch {
+            print("\(error)")
         }
     }
 }

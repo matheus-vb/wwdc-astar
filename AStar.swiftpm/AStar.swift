@@ -76,6 +76,8 @@ extension ContentView {
                     
                     currentPath = foundPath
                     
+                    //self.playSound()
+                    
                     try? await Task.sleep(nanoseconds: 35_000_000)
                 }
                 
