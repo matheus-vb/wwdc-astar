@@ -9,11 +9,11 @@ import Foundation
 import SwiftUI
 
 struct Node: Identifiable, Hashable {
-    let id =  UUID().hashValue
+    var id =  0
     var status: NodeStatus = .free
     var row: Int = 0
     var col: Int = 0
-    var neighbours: [Node] = []
+    var neighboursIds: [Int] = []
     
     func getColor() -> Color {
         switch(self.status) {
@@ -66,22 +66,22 @@ struct Node: Identifiable, Hashable {
     }
     
     mutating func updateNeighbours(grid: [[Node]]) {
-        neighbours = []
+        neighboursIds = []
         
         if row < (rows - 1) && grid[row + 1][col].status != .barrier {
-            neighbours.append(grid[row + 1][col])
+            neighboursIds.append(grid[row + 1][col].id)
         }
         
         if row > 0 && grid[row - 1][col].status != .barrier {
-            neighbours.append(grid[row - 1][col])
+            neighboursIds.append(grid[row - 1][col].id)
         }
         
         if col < (cols - 1) && grid[row][col + 1].status != .barrier {
-            neighbours.append(grid[row][col + 1])
+            neighboursIds.append(grid[row][col + 1].id)
         }
         
         if col > 0 && grid[row][col - 1].status != .barrier {
-            neighbours.append(grid[row][col - 1])
+            neighboursIds.append(grid[row][col - 1].id)
         }
     }
 }
