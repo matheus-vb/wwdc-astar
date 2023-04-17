@@ -77,7 +77,7 @@ struct ContentView: View {
                     }
                 }
                 Spacer()
-                Button("hello") {
+                Button("Find path") {
                     for row in 0..<rows {
                         for col in 0..<cols {
                             matrix[row][col].updateNeighbours(grid: matrix)
@@ -85,9 +85,6 @@ struct ContentView: View {
                     }
                     
                     startNode.neighboursIds = matrix[startNode.row][startNode.col].neighboursIds
-                    
-                    print(matrix[0][1].id)
-                    print(matrix[1][0].id)
                     
                     endNode.neighboursIds = matrix[endNode.row][endNode.col].neighboursIds
 
@@ -99,6 +96,20 @@ struct ContentView: View {
                     
                     
                 }
+                
+                Spacer()
+                
+                Button("Reset") {
+                    for row in 0..<rows {
+                        for col in 0..<cols {
+                            matrix[row][col].status = .free
+                        }
+                    }
+                    
+                    startSet = false
+                    endSet = false
+                }
+                
                 Spacer()
             }
         }
