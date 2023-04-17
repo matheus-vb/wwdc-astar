@@ -12,7 +12,7 @@ func heuristic(p1: CGPoint, p2: CGPoint) -> CGFloat {
 }
 
 extension ContentView {
-    func aStarAlgorithm() -> Bool {
+    func aStarAlgorithm() async -> Bool {
         var count = 0
         let openQueue = PriorityQueue<Node, CGFloat> { (p1: CGFloat, p2: CGFloat) -> (Bool) in
             return p1 < p2
@@ -20,68 +20,105 @@ extension ContentView {
         
         openQueue.enqueue(startNode, 0)
         
-        var parentNode = [Node: Node]()
-        var gScore = [Node: Double]()
+        var parentNode = [Int: Int]()
+        var gScore = [Int: Double]()
         
         for row in 0..<rows {
             for col in 0..<cols {
-                gScore[matrix[row][col]] = 10000000
-                print("\(row), \(col)")
+                gScore[matrix[row][col].id] = Double.infinity
             }
         }
         
         
-        gScore[startNode] = 0
+        gScore[startNode.id] = 0
         
-        var fScore = [Node: Double]()
+        var fScore = [Int: Double]()
         
         for row in 0..<rows {
             for col in 0..<cols {
-                fScore[matrix[row][col]] = 10000000
+                fScore[matrix[row][col].id] = Double.infinity
             }
         }
 
 
-        fScore[startNode] = heuristic(p1: CGPoint(x: startNode.row, y: startNode.col), p2: CGPoint(x: endNode.row, y: endNode.col))
-
+        fScore[startNode.id] = heuristic(p1: CGPoint(x: startNode.row, y: startNode.col), p2: CGPoint(x: endNode.row, y: endNode.col))
         
         var openQueueHash = [startNode]
         
         while !openQueue.isEmpty() {
+            
+            try? await Task.sleep(nanoseconds: 50_000_000)
+
             guard var currentNode = openQueue.dequeue() else {
+                print ("ERRO")
                 return false
             }
+            
             
             if let index = openQueueHash.firstIndex(of: currentNode) {
                 openQueueHash.remove(at: index)
             }
             
             if currentNode == endNode {
+                var currentPath = currentNode
+                
+                while currentPath.id != startNode.id {
+                    matrix[currentPath.row][currentPath.col].status = .path
+                    let currentPathId = parentNode[currentPath.id]
+                    
+                    let matchingRow = matrix.filter { nodes in
+                        nodes.first(where: { $0.id == currentPathId }) != nil
+                    }.first
+                    
+                    guard let foundPath = matchingRow?.first(where: { $0.id == currentPathId }) else {
+                        return false
+                    }
+                    
+                    currentPath = foundPath
+                    
+                    try? await Task.sleep(nanoseconds: 35_000_000)
+                }
+                
+                
                 //FOUND PATH
                 return true
             }
             
-            for var neighbour in currentNode.neighbours {
-                let tempGScore = gScore[currentNode]! + 1
+            for neighbourId in currentNode.neighboursIds {
+                let matchingRow = matrix.filter { nodes in
+                    nodes.first(where: { $0.id == neighbourId }) != nil
+                }.first
                 
-                if tempGScore < gScore[neighbour]! {
-                    parentNode[neighbour] = currentNode
-                    gScore[neighbour] = tempGScore
-                    fScore[neighbour] = tempGScore + heuristic(p1: CGPoint(x: neighbour.row, y: neighbour.col), p2: CGPoint(x: endNode.row, y: endNode.col))
+                guard var neighbour = matchingRow?.first(where: { $0.id == neighbourId }) else {
+                    return false
+                }
+                
+                
+                let tempGScore = gScore[currentNode.id]! + 1
+                
+                if tempGScore < gScore[neighbour.id]! {
+                    parentNode[neighbour.id] = currentNode.id
+                    gScore[neighbour.id] = tempGScore
+                    fScore[neighbour.id] = tempGScore + heuristic(p1: CGPoint(x: neighbour.row, y: neighbour.col), p2: CGPoint(x: endNode.row, y: endNode.col))
                     
                     if !openQueueHash.contains(neighbour) {
                         count += 1
-                        openQueue.enqueue(neighbour, CGFloat(fScore[neighbour]!))
+                        openQueue.enqueue(neighbour, CGFloat(fScore[neighbour.id]!))
                         openQueueHash.append(neighbour)
                         neighbour.status = .open
+                        
+                        matrix[neighbour.row][neighbour.col].status = .open
                     }
                 }
             }
             
             //UPDATE
             
+            matrix[currentNode.row][currentNode.col] = currentNode
+            
             if currentNode != startNode {
                 currentNode.status = .closed
+                matrix[currentNode.row][currentNode.col].status = .closed
             }
         }
         
@@ -91,3 +128,9 @@ extension ContentView {
     }
 }
 
+/*
+ 4638974828092065096
+ 4638974828092065096
+ 
+ 
+ */
