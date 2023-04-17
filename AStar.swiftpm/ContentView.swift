@@ -1,7 +1,7 @@
 import SwiftUI
 
-let rows = 50
-let cols = 50
+let rows = 25
+let cols = 25
 
 
 
@@ -18,6 +18,8 @@ struct ContentView: View {
     @State var endSet = false
     @State var endNode: Node = Node()
     
+    @State var idCounter: Int = 0
+    
     var body: some View {
         ZStack{
             VStack {
@@ -26,7 +28,7 @@ struct ContentView: View {
                         HStack(spacing: 2){
                             ForEach(0..<cols, id: \.self) {col in
                                 Rectangle()
-                                    .frame(width: 12, height: 12)
+                                    .frame(width: 24, height: 24)
                                     .foregroundColor(matrix[row][col].getColor())
                                     .overlay(
                                         GeometryReader { geo in
@@ -35,6 +37,8 @@ struct ContentView: View {
                                                     nodeFrames.insert((geo.frame(in: .global)), at: 0)
                                                     matrix[row][col].col = col
                                                     matrix[row][col].row = row
+                                                    matrix[row][col].id = idCounter
+                                                    idCounter += 1
                                                 }
                                         }
                                     )
@@ -80,7 +84,18 @@ struct ContentView: View {
                         }
                     }
                     
-                    print(aStarAlgorithm())
+                    startNode.neighboursIds = matrix[startNode.row][startNode.col].neighboursIds
+                    
+                    print(matrix[0][1].id)
+                    print(matrix[1][0].id)
+                    
+                    endNode.neighboursIds = matrix[endNode.row][endNode.col].neighboursIds
+
+                    DispatchQueue.main.async {
+                        Task {
+                            await print(aStarAlgorithm())                            
+                        }
+                    }
                     
                     
                 }
