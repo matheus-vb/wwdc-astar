@@ -65,6 +65,8 @@ extension ContentView {
                 var currentPath = currentNode
                 
                 while currentPath.id != startNode.id {
+                    path.append(currentPath)
+                    
                     pathCount += 1
                     
                     matrix[currentPath.row][currentPath.col].status = .path
@@ -85,7 +87,7 @@ extension ContentView {
                     try? await Task.sleep(nanoseconds: 35_000_000)
                 }
                 
-                
+                foundPath = true
                 //FOUND PATH
                 return true
             }

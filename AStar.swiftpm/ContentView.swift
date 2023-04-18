@@ -1,8 +1,8 @@
 import SwiftUI
 import AVFoundation
 
-let rows = 25
-let cols = 25
+let rows = 12
+let cols = 12
 
 var player: AVAudioPlayer!
 
@@ -18,45 +18,62 @@ struct ContentView: View {
     @State var startSet = false
     @State var startNode: Node = Node()
     
+    @State var currentRect = CGRect()
+    
     @State var endSet = false
     @State var endNode: Node = Node()
     
+    @State var foundPath: Bool = false
+    @State var path: [Node] = []
+    
     @State var idCounter: Int = 0
+    
+    @State var animateX: CGFloat = 0
+    @State var animateY: CGFloat = 0
     
     var body: some View {
         ZStack{
+            Color.theme.background
+                .edgesIgnoringSafeArea(.all)
             VStack {
                 VStack(spacing: 2){
                     ForEach(0..<rows, id: \.self) {row in
                         HStack(spacing: 2){
                             ForEach(0..<cols, id: \.self) {col in
-                                Rectangle()
-                                    .frame(width: 24, height: 24)
-                                    .foregroundColor(matrix[row][col].getColor())
-                                    .overlay(
-                                        GeometryReader { geo in
-                                            Color.clear
-                                                .onAppear {
-                                                    nodeFrames.insert((geo.frame(in: .global)), at: 0)
-                                                    matrix[row][col].col = col
-                                                    matrix[row][col].row = row
-                                                    matrix[row][col].id = idCounter
-                                                    idCounter += 1
-                                                }
-                                        }
-                                    )
+                                ZStack {
+                                    Rectangle()
+                                        .frame(width: 56, height: 56)
+                                        .foregroundColor(matrix[row][col].getColor())
+                                        .overlay(
+                                            GeometryReader { geo in
+                                                Color.clear
+                                                    .onAppear {
+                                                        nodeFrames.insert((geo.frame(in: .global)), at: 0)
+                                                        matrix[row][col].col = col
+                                                        matrix[row][col].row = row
+                                                        matrix[row][col].id = idCounter
+                                                        idCounter += 1
+                                                    }
+                                            }
+                                        )
+                                        .cornerRadius(10)
+                                }
                             }
                             .gesture(DragGesture(minimumDistance: 0, coordinateSpace: .global)
                                 .onChanged({ (value) in
                                     if let match = nodeFrames.firstIndex(where: { $0.contains(value.location) }) {
                                         let row = match / cols
                                         let col = match % cols
-                                        print("\(matrix[row][col].col), \(matrix[row][col].row)")
+                                        //print("\(matrix[row][col].col), \(matrix[row][col].row)")
+                                        print(nodeFrames[match])
                                         
                                         if !startSet {
                                             matrix[row][col].status = .start
                                             startSet = true
                                             startNode = matrix[row][col]
+                                            currentRect = nodeFrames[match]
+                                            animateX = nodeFrames[match].midX
+                                            animateY = nodeFrames[match].minY
                                             
                                         } else if !endSet {
                                             matrix[row][col].status = .end
@@ -90,7 +107,7 @@ struct ContentView: View {
                     startNode.neighboursIds = matrix[startNode.row][startNode.col].neighboursIds
                     
                     endNode.neighboursIds = matrix[endNode.row][endNode.col].neighboursIds
-
+                    
                     DispatchQueue.main.async {
                         Task {
                             let start = NSDate().timeIntervalSince1970
@@ -116,10 +133,40 @@ struct ContentView: View {
                     
                     startSet = false
                     endSet = false
+                    foundPath = false
+                    path = []
+                    currentRect = CGRect()
                 }
                 
                 Spacer()
             }
+            if startSet {
+                Image(uiImage: UIImage(imageLiteralResourceName: "biker"))
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 80, height: 80)
+                    .position(x: animateX, y: animateY)
+                    .animation(.default, value: animateX)
+                    .animation(.default, value: animateY)
+            }
+        }
+        .onChange(of: foundPath) {_ in
+            DispatchQueue.main.async {
+                Task {
+                    await delayAnimation()
+                }
+            }
+        }
+    }
+    
+    func delayAnimation() async {
+        let reversedPath = path.reversed()
+        
+        for node in reversedPath {
+            currentRect = nodeFrames[node.row * cols + node.col]
+            animateX = currentRect.midX
+            animateY = currentRect.minY
+            try? await Task.sleep(nanoseconds: 175_000_000)
         }
     }
     

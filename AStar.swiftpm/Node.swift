@@ -18,25 +18,25 @@ struct Node: Identifiable, Hashable {
     func getColor() -> Color {
         switch(self.status) {
         case .path:
-            return .purple
+            return Color.theme.red
             
         case .free:
-            return .gray
+            return Color.theme.orange
             
         case .open:
-            return .green
+            return Color.theme.yellow
             
         case .closed:
-            return .red
+            return Color.theme.lightGreen
             
         case .barrier:
-            return .black
+            return Color.theme.darkBlue
             
         case .start:
-            return .orange
+            return Color.theme.lightGreen
             
         case .end :
-            return .blue
+            return .pink
         }
     }
     
