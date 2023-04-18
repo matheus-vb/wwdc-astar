@@ -14,11 +14,10 @@ func heuristic(p1: CGPoint, p2: CGPoint) -> CGFloat {
 extension ContentView {
     func aStarAlgorithm() async -> Bool {
         var count = 0
-        let openQueue = PriorityQueue<Node, CGFloat> { (p1: CGFloat, p2: CGFloat) -> (Bool) in
-            return p1 < p2
-        }
+        let openQueue = Heap<Node, CGFloat>(isMinHeap: true)
         
-        openQueue.enqueue(startNode, 0)
+        //openQueue.enqueue(startNode, 0)
+        openQueue.insert(startNode, priority: 0)
         
         var parentNode = [Int: Int]()
         var gScore = [Int: Double]()
@@ -45,11 +44,12 @@ extension ContentView {
         
         var openQueueHash = [startNode]
         
-        while !openQueue.isEmpty() {
-            
+       // while !openQueue.isEmpty() {
+        while !openQueue.isEmpty {
+
             try? await Task.sleep(nanoseconds: 50_000_000)
 
-            guard var currentNode = openQueue.dequeue() else {
+            guard var currentNode = openQueue.pop() else {
                 print ("ERRO")
                 return false
             }
@@ -105,7 +105,8 @@ extension ContentView {
                     
                     if !openQueueHash.contains(neighbour) {
                         count += 1
-                        openQueue.enqueue(neighbour, CGFloat(fScore[neighbour.id]!))
+                        //openQueue.enqueue(neighbour, CGFloat(fScore[neighbour.id]!))
+                        openQueue.insert(neighbour, priority: CGFloat(fScore[neighbour.id]!))
                         openQueueHash.append(neighbour)
                         neighbour.status = .open
                         
