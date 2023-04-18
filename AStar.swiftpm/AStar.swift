@@ -14,7 +14,9 @@ func heuristic(p1: CGPoint, p2: CGPoint) -> CGFloat {
 extension ContentView {
     func aStarAlgorithm() async -> Bool {
         var count = 0
-        let openQueue = Heap<Node, CGFloat>(isMinHeap: true)
+        let openQueue = Heap<Node, CGFloat> { (p1: CGFloat, p2: CGFloat) -> (Bool) in
+            return p1 < p2
+        }
         
         //openQueue.enqueue(startNode, 0)
         openQueue.insert(startNode, priority: 0)
@@ -63,6 +65,8 @@ extension ContentView {
                 var currentPath = currentNode
                 
                 while currentPath.id != startNode.id {
+                    pathCount += 1
+                    
                     matrix[currentPath.row][currentPath.col].status = .path
                     let currentPathId = parentNode[currentPath.id]
                     

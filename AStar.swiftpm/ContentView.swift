@@ -6,6 +6,8 @@ let cols = 25
 
 var player: AVAudioPlayer!
 
+var pathCount = 0
+
 struct ContentView: View {
     
     @State var matrix = [[Node]](repeating: [Node](repeating: Node(), count: cols), count: rows)
@@ -91,7 +93,12 @@ struct ContentView: View {
 
                     DispatchQueue.main.async {
                         Task {
-                            await print(aStarAlgorithm())                            
+                            let start = NSDate().timeIntervalSince1970
+                            await print(aStarAlgorithm())
+                            let end = NSDate().timeIntervalSince1970
+                            print(end - start)
+                            print(pathCount)
+                            pathCount = 0
                         }
                     }
                     

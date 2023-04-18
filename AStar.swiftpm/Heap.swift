@@ -9,10 +9,10 @@ import Foundation
 
 class Heap<E, P: Comparable> {
     private var elements = [(element: E, priority: P)]()
-    private let isMinHeap: Bool
+    private let priorityClosure: (P, P) -> Bool
     
-    init(isMinHeap: Bool) {
-        self.isMinHeap = isMinHeap
+    init(priorityClosure: @escaping (P, P) -> Bool) {
+        self.priorityClosure = priorityClosure
     }
     
     var isEmpty: Bool {
@@ -35,12 +35,8 @@ class Heap<E, P: Comparable> {
         return (2 * i) + 2
     }
     
-    private func isPriorityHigher(_ e1: (element: E, priority: P), _ e2: (element: E, priority: P)) -> Bool {
-        if isMinHeap {
-            return e1.priority < e2.priority
-        } else {
-            return e1.priority > e2.priority
-        }
+    private func isPriorityHigher(_ e1Index: Int, _ e2Index: Int) -> Bool {
+        return priorityClosure(elements[e1Index].priority, elements[e2Index].priority)
     }
     
     private func swap(_ aIdx: Int, _ bIdx: Int) {
@@ -52,11 +48,13 @@ class Heap<E, P: Comparable> {
     }
     
     private func bubbleUp(_ i: Int) {
-        var index = i
+        var childIndex = i
+        var parentIndex = getParentIndex(childIndex)
         
-        while index > 0 && isPriorityHigher(elements[index], elements[getParentIndex(index)]) {
-            swap(index, getParentIndex(index))
-            index = getParentIndex(index)
+        while childIndex > 0 && isPriorityHigher(childIndex, parentIndex) {
+            swap(childIndex, parentIndex)
+            childIndex = parentIndex
+            parentIndex = getParentIndex(childIndex)
         }
     }
     
@@ -68,11 +66,11 @@ class Heap<E, P: Comparable> {
             let rightIdx = getRightChildIndex(index)
             var priorityIdx = index
             
-            if leftIdx < size && isPriorityHigher(elements[leftIdx], elements[priorityIdx]) {
+            if leftIdx < size && isPriorityHigher(leftIdx, priorityIdx) {
                 priorityIdx = leftIdx
             }
             
-            if rightIdx < size && isPriorityHigher(elements[rightIdx], elements[priorityIdx]) {
+            if rightIdx < size && isPriorityHigher(rightIdx, priorityIdx) {
                 priorityIdx = rightIdx
             }
             
