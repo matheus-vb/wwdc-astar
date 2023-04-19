@@ -190,6 +190,7 @@ struct AStarView: View {
                     .animation(.default, value: animateX)
                     .animation(.default, value: animateY)
             }
+            TutorialView()
         }
         .onChange(of: foundPath) {_ in
             DispatchQueue.main.async {
