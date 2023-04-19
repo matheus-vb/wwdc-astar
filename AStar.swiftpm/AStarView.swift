@@ -28,20 +28,35 @@ struct AStarView: View {
     
     @State var foundPath: Bool = false
     @State var path: [Node] = []
+    @State var unavailablePath: Bool = false
     
     @State var idCounter: Int = 0
     
     @State var animateX: CGFloat = 0
     @State var animateY: CGFloat = 0
     
+    @State var showingTutorial: Bool = true
+    @State var tutorialAnimation: Bool = true
+    
     var body: some View {
         ZStack{
             Color.theme.background
                 .edgesIgnoringSafeArea(.all)
-            VStack {
-                Image(uiImage: UIImage(imageLiteralResourceName: "logo"))
-                    .resizable()
-                    .scaledToFit()
+            VStack(spacing: 2) {
+                ZStack{
+                    Image(uiImage: UIImage(imageLiteralResourceName: "logo"))
+                        .resizable()
+                        .scaledToFit()
+                    Button(action: {
+                        showingTutorial = true
+                    }, label: {
+                        Image(uiImage: UIImage(imageLiteralResourceName: "info"))
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 64, height: 64)
+                            .position(x: UIScreen.main.bounds.width - 50, y: 50)
+                    })
+                }
                 VStack(spacing: 2){
                     ForEach(0..<rows, id: \.self) {row in
                         HStack(spacing: 2){
@@ -82,14 +97,15 @@ struct AStarView: View {
                                             animateY = nodeFrames[match].minY
                                             
                                         } else if !endSet {
-                                            matrix[row][col].status = .end
-                                            endSet = true
-                                            endNode = matrix[row][col]
-                                            endRect = nodeFrames[match]
+                                            if matrix[row][col].status != .start {
+                                                matrix[row][col].status = .end
+                                                endSet = true
+                                                endNode = matrix[row][col]
+                                                endRect = nodeFrames[match]
+                                            }
                                             
                                         } else {
                                             matrix[row][col].status = .barrier
-                                            
                                         }
                                         
                                     } else {
@@ -131,11 +147,16 @@ struct AStarView: View {
                         DispatchQueue.main.async {
                             Task {
                                 let start = NSDate().timeIntervalSince1970
-                                await print(aStarAlgorithm())
+                                let done = await aStarAlgorithm()
+                                print(done)
                                 let end = NSDate().timeIntervalSince1970
                                 print(end - start)
                                 print(pathCount)
                                 pathCount = 0
+                                if !done {
+                                    await showNoPathCard()
+                                }
+                                
                             }
                         }
                     }, label: {
@@ -164,12 +185,8 @@ struct AStarView: View {
                             .scaledToFit()
                             .frame(width: 96, height: 96)
                     })
-                                    
-                    
-                    
-                    
-                    
                 }
+                .frame(height: 220)
                 
             }
             
@@ -190,7 +207,23 @@ struct AStarView: View {
                     .animation(.default, value: animateX)
                     .animation(.default, value: animateY)
             }
-            TutorialView()
+            
+            
+            
+            TutorialView(showingTutorial: $showingTutorial)
+                .opacity(showingTutorial ? 1 : 0 )
+                .animation(.default, value: showingTutorial)
+                .transition(.opacity)
+            
+            NoPathView()
+                .opacity(unavailablePath ? 1 : 0)
+                .animation(.default, value: unavailablePath)
+                .transition(.opacity)
+        }
+        .onChange(of: showingTutorial) {_ in
+            withAnimation(Animation.easeOut(duration: 0.5)) {
+                tutorialAnimation.toggle()
+            }
         }
         .onChange(of: foundPath) {_ in
             DispatchQueue.main.async {
@@ -199,6 +232,15 @@ struct AStarView: View {
                 }
             }
         }
+    }
+    
+    func showNoPathCard() async {
+        
+        unavailablePath.toggle()
+        
+        try? await Task.sleep(nanoseconds: 3_000_000_000)
+        
+        unavailablePath.toggle()
     }
     
     func delayAnimation() async {

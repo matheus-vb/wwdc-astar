@@ -8,21 +8,22 @@
 import SwiftUI
 
 struct TutorialView: View {
+    @Binding var showingTutorial: Bool
+    
     var body: some View {
         ZStack {
             Rectangle()
                 .fill(Color.black)
                 .opacity(0.5)
                 .edgesIgnoringSafeArea(.all)
-            Rectangle()
-                .fill(Color.red)
-                .frame(width: 100, height: 100)
+                .onTapGesture {
+                    withAnimation() {
+                        showingTutorial = false                        
+                    }
+                }
+            TutorialCardView()
         }
     }
 }
 
-struct TutorialView_Previews: PreviewProvider {
-    static var previews: some View {
-        TutorialView()
-    }
-}
+
