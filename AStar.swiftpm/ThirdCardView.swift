@@ -20,11 +20,16 @@ struct ThirdCardView: View {
                     .font(.system(size: 24, design: .monospaced))
                     .fontWeight(.semibold)
                     .multilineTextAlignment(.center)
-                Button("GO") {
+                Button(action: {
                     withAnimation {
                         appStatus.appStatus = .algo
                     }
-                }
+                }, label: {
+                    Image(uiImage: UIImage(imageLiteralResourceName: "go"))
+                        .resizable()
+                        .scaledToFit()
+                        .frame(width: 96, height: 96)
+                })
             }
             .padding(.all, 40)
         }.frame(width: 450, height: 520)
