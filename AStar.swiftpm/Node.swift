@@ -33,7 +33,7 @@ struct Node: Identifiable, Hashable {
             return Color.theme.darkBlue
             
         case .start:
-            return Color.theme.lightGreen
+            return Color.green
             
         case .end :
             return .pink

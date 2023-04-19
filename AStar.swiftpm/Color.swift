@@ -52,4 +52,5 @@ struct ColorTheme {
     let leaf = Color(hex: "43CD51")
     
     let background = Color(hex: "F3F9E3")
+    let darkBackground = Color(hex: "A1AA88")
 }
