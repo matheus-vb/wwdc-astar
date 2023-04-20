@@ -48,6 +48,7 @@ extension AStarView {
         
        // while !openQueue.isEmpty() {
         while !openQueue.isEmpty {
+            soundPlayer.playSound(name: "check", type: "wav")
 
             try? await Task.sleep(nanoseconds: 50_000_000)
 
@@ -65,6 +66,8 @@ extension AStarView {
                 var currentPath = currentNode
                 
                 while currentPath.id != startNode.id {
+                    soundPlayer.playSound(name: "click", type: "wav")
+                    
                     path.append(currentPath)
                     
                     pathCount += 1

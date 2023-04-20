@@ -4,8 +4,6 @@ import AVFoundation
 let rows = 12
 let cols = 12
 
-var player: AVAudioPlayer!
-
 var pathCount = 0
 
 struct AStarView: View {
@@ -38,6 +36,10 @@ struct AStarView: View {
     @State var showingTutorial: Bool = true
     @State var tutorialAnimation: Bool = true
     
+    @State var showDonePath: Bool = false
+    
+    let soundPlayer = SoundPlayer()
+    
     var body: some View {
         ZStack{
             Color.theme.background
@@ -47,8 +49,26 @@ struct AStarView: View {
                     Image(uiImage: UIImage(imageLiteralResourceName: "logo"))
                         .resizable()
                         .scaledToFit()
+                    
                     Button(action: {
                         showingTutorial = true
+                        soundPlayer.playSound(name: "ticker", type: "mp3")
+
+                    }, label: {
+                        Image(uiImage: UIImage(imageLiteralResourceName: "tutorial"))
+                            .resizable()
+                            .scaledToFit()
+                            .frame(width: 64, height: 64)
+                            .position(x: UIScreen.main.bounds.width - 50, y: 50)
+                    })
+                    
+                    Button(action: {
+                        soundPlayer.playSound(name: "ticker", type: "mp3")
+                        
+                        withAnimation {
+                            appStatus.appStatus = .credits
+                        }
+
                     }, label: {
                         Image(uiImage: UIImage(imageLiteralResourceName: "info"))
                             .resizable()
@@ -89,6 +109,7 @@ struct AStarView: View {
                                         print(nodeFrames[match])
                                         
                                         if !startSet {
+                                            soundPlayer.playSound(name: "place", type: "wav")
                                             matrix[row][col].status = .start
                                             startSet = true
                                             startNode = matrix[row][col]
@@ -97,6 +118,7 @@ struct AStarView: View {
                                             animateY = nodeFrames[match].minY
                                             
                                         } else if !endSet {
+                                            soundPlayer.playSound(name: "place", type: "wav")
                                             if matrix[row][col].status != .start {
                                                 matrix[row][col].status = .end
                                                 endSet = true
@@ -119,9 +141,21 @@ struct AStarView: View {
                         }
                     }
                 }
-                Spacer()
+                
+                GameCardView(step: {
+                    if !startSet {
+                        return .first
+                    } else if !endSet {
+                        return .second
+                    } else {
+                        return .third
+                    }
+                }()).padding(.top)
+                
                 HStack (spacing: 80){
                     Button(action: {
+                        soundPlayer.playSound(name: "ticker", type: "mp3")
+
                         withAnimation {
                             appStatus.appStatus = .intro
                         }
@@ -130,10 +164,12 @@ struct AStarView: View {
                         Image(uiImage: UIImage(imageLiteralResourceName: "back"))
                             .resizable()
                             .scaledToFit()
-                            .frame(width: 96, height: 96)
+                            .frame(width: 108, height: 108)
                     })
                     
                     Button(action: {
+                        soundPlayer.playSound(name: "ticker", type: "mp3")
+
                         for row in 0..<rows {
                             for col in 0..<cols {
                                 matrix[row][col].updateNeighbours(grid: matrix)
@@ -163,10 +199,12 @@ struct AStarView: View {
                         Image(uiImage: UIImage(imageLiteralResourceName: "astar"))
                             .resizable()
                             .scaledToFit()
-                            .frame(width: 96, height: 96)
+                            .frame(width: 120, height: 120)
                     })
                     
                     Button(action: {
+                        soundPlayer.playSound(name: "ticker", type: "mp3")
+
                         for row in 0..<rows {
                             for col in 0..<cols {
                                 matrix[row][col].status = .free
@@ -183,7 +221,7 @@ struct AStarView: View {
                         Image(uiImage: UIImage(imageLiteralResourceName: "reset"))
                             .resizable()
                             .scaledToFit()
-                            .frame(width: 96, height: 96)
+                            .frame(width: 108, height: 108)
                     })
                 }
                 .frame(height: 220)
@@ -219,16 +257,24 @@ struct AStarView: View {
                 .opacity(unavailablePath ? 1 : 0)
                 .animation(.default, value: unavailablePath)
                 .transition(.opacity)
+            
+            PathDoneView()
+                .opacity(showDonePath ? 1 : 0)
+                .animation(.default, value: showDonePath)
+                .transition(.opacity)
         }
         .onChange(of: showingTutorial) {_ in
             withAnimation(Animation.easeOut(duration: 0.5)) {
                 tutorialAnimation.toggle()
             }
         }
+        
         .onChange(of: foundPath) {_ in
-            DispatchQueue.main.async {
-                Task {
-                    await delayAnimation()
+            if foundPath {
+                DispatchQueue.main.async {
+                    Task {
+                        await delayAnimation()
+                    }
                 }
             }
         }
@@ -238,7 +284,7 @@ struct AStarView: View {
         
         unavailablePath.toggle()
         
-        try? await Task.sleep(nanoseconds: 3_000_000_000)
+        try? await Task.sleep(nanoseconds: 2_750_000_000)
         
         unavailablePath.toggle()
     }
@@ -252,6 +298,14 @@ struct AStarView: View {
             animateY = currentRect.minY
             try? await Task.sleep(nanoseconds: 175_000_000)
         }
+        
+        soundPlayer.playSound(name: "doorbell", type: "wav")
+
+        showDonePath.toggle()
+        try? await Task.sleep(nanoseconds: 2_750_000_000)
+        showDonePath.toggle()
+        
+        
     }
     
     func playSound() {

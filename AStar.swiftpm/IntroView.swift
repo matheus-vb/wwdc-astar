@@ -10,6 +10,8 @@ import SwiftUI
 struct IntroView: View {
     @EnvironmentObject var appStatus: AppStatus
     
+    let soundPlayer = SoundPlayer()
+    
     var body: some View {
         ZStack {
             Color.theme.darkBackground
@@ -35,6 +37,8 @@ struct IntroView: View {
                 Spacer()
                 
             }
+        }.onAppear {
+            soundPlayer.playBackgroundSound(name: "background", type: "wav")
         }
     }
 }

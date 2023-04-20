@@ -14,4 +14,5 @@ class AppStatus: ObservableObject {
 enum AppStatusEnum {
     case intro
     case algo
+    case credits
 }

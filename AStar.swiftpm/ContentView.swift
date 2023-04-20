@@ -18,6 +18,9 @@ struct ContentView: View {
         case .algo:
             AStarView()
                 .environmentObject(appStatus)
+        case .credits:
+            CreditsView()
+                .environmentObject(appStatus)
         }
     }
 }

@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct ThirdCardView: View {
+    let soundPlayer = SoundPlayer()
+    
     @EnvironmentObject var appStatus: AppStatus
 
     var body: some View {
@@ -21,6 +23,8 @@ struct ThirdCardView: View {
                     .fontWeight(.semibold)
                     .multilineTextAlignment(.center)
                 Button(action: {
+                    soundPlayer.playSound(name: "ticker", type: "mp3")
+                    
                     withAnimation {
                         appStatus.appStatus = .algo
                     }
