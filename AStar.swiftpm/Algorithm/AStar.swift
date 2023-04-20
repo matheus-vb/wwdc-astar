@@ -18,7 +18,6 @@ extension AStarView {
             return p1 < p2
         }
         
-        //openQueue.enqueue(startNode, 0)
         openQueue.insert(startNode, priority: 0)
         
         var parentNode = [Int: Int]()
@@ -46,7 +45,6 @@ extension AStarView {
         
         var openQueueHash = [startNode]
         
-       // while !openQueue.isEmpty() {
         while !openQueue.isEmpty {
             soundPlayer.playSound(name: "check", type: "wav")
 
@@ -89,9 +87,7 @@ extension AStarView {
                     }
                     
                     currentPath = foundPath
-                    
-                    //self.playSound()
-                    
+                                        
                     try? await Task.sleep(nanoseconds: 35_000_000)
                 }
                 
@@ -128,9 +124,7 @@ extension AStarView {
                     }
                 }
             }
-            
-            //UPDATE
-            
+ 
             matrix[currentNode.row][currentNode.col] = currentNode
             
             if currentNode != startNode {
@@ -140,8 +134,7 @@ extension AStarView {
         }
         
         return false
-        
-        
+
     }
 }
 

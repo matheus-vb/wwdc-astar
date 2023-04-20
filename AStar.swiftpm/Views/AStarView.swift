@@ -105,8 +105,6 @@ struct AStarView: View {
                                     if let match = nodeFrames.firstIndex(where: { $0.contains(value.location) }) {
                                         let row = match / cols
                                         let col = match % cols
-                                        //print("\(matrix[row][col].col), \(matrix[row][col].row)")
-                                        print(nodeFrames[match])
                                         
                                         if !startSet {
                                             soundPlayer.playSound(name: "place", type: "wav")
@@ -184,10 +182,7 @@ struct AStarView: View {
                             Task {
                                 let start = NSDate().timeIntervalSince1970
                                 let done = await aStarAlgorithm()
-                                print(done)
                                 let end = NSDate().timeIntervalSince1970
-                                print(end - start)
-                                print(pathCount)
                                 pathCount = 0
                                 if !done {
                                     await showNoPathCard()

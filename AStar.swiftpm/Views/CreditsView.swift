@@ -61,9 +61,7 @@ struct CreditsView: View {
                         .padding(60)
                 }
             }
-            Button(action: {
-                print("TAP")
-                
+            Button(action: {                
                 soundPlayer.playSound(name: "ticker", type: "mp3")
                 
                 withAnimation {
