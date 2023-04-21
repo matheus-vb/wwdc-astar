@@ -8,20 +8,20 @@ import PackageDescription
 import AppleProductTypes
 
 let package = Package(
-    name: "AStar",
+    name: "pizzAstar",
     platforms: [
-        .iOS("15.2")
+        .iOS("16.0")
     ],
     products: [
         .iOSApplication(
-            name: "AStar",
+            name: "pizzAstar",
             targets: ["AppModule"],
             bundleIdentifier: "br.ufpe.cin.academy.AStar",
             teamIdentifier: "L3ZW5SA328",
             displayVersion: "1.0",
             bundleVersion: "1",
-            appIcon: .placeholder(icon: .leaf),
-            accentColor: .presetColor(.indigo),
+            appIcon: .placeholder(icon: .lightningBolt),
+            accentColor: .presetColor(.yellow),
             supportedDeviceFamilies: [
                 .pad,
                 .phone

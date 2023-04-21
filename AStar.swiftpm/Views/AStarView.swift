@@ -151,73 +151,91 @@ struct AStarView: View {
                 }()).padding(.top)
                 
                 HStack (spacing: 80){
-                    Button(action: {
-                        soundPlayer.playSound(name: "ticker", type: "mp3")
-
-                        withAnimation {
-                            appStatus.appStatus = .intro
-                        }
+                    VStack {
+                        Button(action: {
+                            soundPlayer.playSound(name: "ticker", type: "mp3")
                             
-                    }, label: {
-                        Image(uiImage: UIImage(imageLiteralResourceName: "back"))
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 108, height: 108)
-                    })
-                    
-                    Button(action: {
-                        soundPlayer.playSound(name: "ticker", type: "mp3")
-
-                        for row in 0..<rows {
-                            for col in 0..<cols {
-                                matrix[row][col].updateNeighbours(grid: matrix)
+                            withAnimation {
+                                appStatus.appStatus = .intro
                             }
-                        }
-                        
-                        startNode.neighboursIds = matrix[startNode.row][startNode.col].neighboursIds
-                        
-                        endNode.neighboursIds = matrix[endNode.row][endNode.col].neighboursIds
-                        
-                        DispatchQueue.main.async {
-                            Task {
-                                let start = NSDate().timeIntervalSince1970
-                                let done = await aStarAlgorithm()
-                                let end = NSDate().timeIntervalSince1970
-                                pathCount = 0
-                                if !done {
-                                    await showNoPathCard()
+                            
+                        }, label: {
+                            Image(uiImage: UIImage(imageLiteralResourceName: "back"))
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 108, height: 108)
+                        })
+                        Text("Back")
+                            .font(.system(size: 20, design: .monospaced))
+                            .fontWeight(.semibold)
+                            .multilineTextAlignment(.center)
+                    }
+                    
+                    VStack {
+                        Button(action: {
+                            soundPlayer.playSound(name: "ticker", type: "mp3")
+                            
+                            for row in 0..<rows {
+                                for col in 0..<cols {
+                                    matrix[row][col].updateNeighbours(grid: matrix)
                                 }
-                                
                             }
-                        }
-                    }, label: {
-                        Image(uiImage: UIImage(imageLiteralResourceName: "astar"))
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 120, height: 120)
-                    })
+                            
+                            startNode.neighboursIds = matrix[startNode.row][startNode.col].neighboursIds
+                            
+                            endNode.neighboursIds = matrix[endNode.row][endNode.col].neighboursIds
+                            
+                            DispatchQueue.main.async {
+                                Task {
+                                    let start = NSDate().timeIntervalSince1970
+                                    let done = await aStarAlgorithm()
+                                    let end = NSDate().timeIntervalSince1970
+                                    pathCount = 0
+                                    if !done {
+                                        await showNoPathCard()
+                                    }
+                                    
+                                }
+                            }
+                        }, label: {
+                            Image(uiImage: UIImage(imageLiteralResourceName: "astar"))
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 120, height: 120)
+                        })
+                        Text("Start")
+                            .font(.system(size: 20, design: .monospaced))
+                            .fontWeight(.semibold)
+                            .multilineTextAlignment(.center)
+                    }
                     
-                    Button(action: {
-                        soundPlayer.playSound(name: "ticker", type: "mp3")
-
-                        for row in 0..<rows {
-                            for col in 0..<cols {
-                                matrix[row][col].status = .free
+                    VStack {
+                        Button(action: {
+                            soundPlayer.playSound(name: "ticker", type: "mp3")
+                            
+                            for row in 0..<rows {
+                                for col in 0..<cols {
+                                    matrix[row][col].status = .free
+                                }
                             }
-                        }
-                        
-                        startSet = false
-                        endSet = false
-                        foundPath = false
-                        path = []
-                        currentRect = CGRect()
-                        endRect = CGRect()
-                    }, label: {
-                        Image(uiImage: UIImage(imageLiteralResourceName: "reset"))
-                            .resizable()
-                            .scaledToFit()
-                            .frame(width: 108, height: 108)
-                    })
+                            
+                            startSet = false
+                            endSet = false
+                            foundPath = false
+                            path = []
+                            currentRect = CGRect()
+                            endRect = CGRect()
+                        }, label: {
+                            Image(uiImage: UIImage(imageLiteralResourceName: "reset"))
+                                .resizable()
+                                .scaledToFit()
+                                .frame(width: 108, height: 108)
+                        })
+                        Text("Reset")
+                            .font(.system(size: 20, design: .monospaced))
+                            .fontWeight(.semibold)
+                            .multilineTextAlignment(.center)
+                    }
                 }
                 .frame(height: 220)
                 

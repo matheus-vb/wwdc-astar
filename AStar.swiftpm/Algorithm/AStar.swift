@@ -7,57 +7,43 @@
 
 import Foundation
 
-func heuristic(p1: CGPoint, p2: CGPoint) -> CGFloat {
-    return abs(p1.x - p2.x) + abs(p1.y - p2.y)
-}
-
 extension AStarView {
     func aStarAlgorithm() async -> Bool {
-        var count = 0
-        let openQueue = Heap<Node, CGFloat> { (p1: CGFloat, p2: CGFloat) -> (Bool) in
+        let openHeap = Heap<Node, CGFloat> { (p1: CGFloat, p2: CGFloat) -> (Bool) in
             return p1 < p2
         }
         
-        openQueue.insert(startNode, priority: 0)
+        openHeap.insert(startNode, priority: 0)
         
         var parentNode = [Int: Int]()
         var gScore = [Int: Double]()
-        
-        for row in 0..<rows {
-            for col in 0..<cols {
-                gScore[matrix[row][col].id] = Double.infinity
-            }
-        }
-        
-        
-        gScore[startNode.id] = 0
-        
         var fScore = [Int: Double]()
         
         for row in 0..<rows {
             for col in 0..<cols {
+                gScore[matrix[row][col].id] = Double.infinity
                 fScore[matrix[row][col].id] = Double.infinity
             }
         }
-
-
+    
+        gScore[startNode.id] = 0
         fScore[startNode.id] = heuristic(p1: CGPoint(x: startNode.row, y: startNode.col), p2: CGPoint(x: endNode.row, y: endNode.col))
         
-        var openQueueHash = [startNode]
+        var openHeapHash = [startNode]
         
-        while !openQueue.isEmpty {
+        while !openHeap.isEmpty {
             soundPlayer.playSound(name: "check", type: "wav")
 
             try? await Task.sleep(nanoseconds: 50_000_000)
 
-            guard var currentNode = openQueue.pop() else {
+            guard var currentNode = openHeap.pop() else {
                 print ("ERRO")
                 return false
             }
             
             
-            if let index = openQueueHash.firstIndex(of: currentNode) {
-                openQueueHash.remove(at: index)
+            if let index = openHeapHash.firstIndex(of: currentNode) {
+                openHeapHash.remove(at: index)
             }
             
             if currentNode == endNode {
@@ -113,11 +99,9 @@ extension AStarView {
                     gScore[neighbour.id] = tempGScore
                     fScore[neighbour.id] = tempGScore + heuristic(p1: CGPoint(x: neighbour.row, y: neighbour.col), p2: CGPoint(x: endNode.row, y: endNode.col))
                     
-                    if !openQueueHash.contains(neighbour) {
-                        count += 1
-                        //openQueue.enqueue(neighbour, CGFloat(fScore[neighbour.id]!))
-                        openQueue.insert(neighbour, priority: CGFloat(fScore[neighbour.id]!))
-                        openQueueHash.append(neighbour)
+                    if !openHeapHash.contains(neighbour) {
+                        openHeap.insert(neighbour, priority: CGFloat(fScore[neighbour.id]!))
+                        openHeapHash.append(neighbour)
                         neighbour.status = .open
                         
                         matrix[neighbour.row][neighbour.col].status = .open
